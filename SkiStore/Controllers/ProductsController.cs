@@ -1,14 +1,13 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SkiStore.Data;
 using SkiStore.Entities;
 
 namespace SkiStore.Controllers
 {
-    [Route("api/[controller]")] //http://localhost:5001/api/products
-    [ApiController]
-    public class ProductsController(StoreContext context) : ControllerBase
+    //[Route("api/[controller]")] //http://localhost:5001/api/products
+    //[ApiController]
+    public class ProductsController(StoreContext context) : BaseApiController
     {
         [HttpGet]
         public async Task<ActionResult<List<Product>>> GetProducts()
