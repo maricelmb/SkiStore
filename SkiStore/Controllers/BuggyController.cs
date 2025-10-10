@@ -13,7 +13,7 @@ namespace SkiStore.Controllers
         [HttpGet("badrequest")]
         public IActionResult GetBadRequest()
         {
-            return BadRequest();
+            return BadRequest("This is not a good request.");
         }
 
         [HttpGet("unauthorized")]
@@ -23,7 +23,7 @@ namespace SkiStore.Controllers
         }
         
         [HttpGet("validation-error")]
-        public IActionResult GetBadRequest(int id)
+        public IActionResult GetValidationError(int id)
         {
             ModelState.AddModelError("Problem1", "This is First error");
             ModelState.AddModelError("Problem2", "This is second error");
