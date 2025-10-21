@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SkiStore.Data;
+using SkiStore.DTOs;
 using SkiStore.Entities;
 
 namespace SkiStore.Controllers
@@ -12,13 +13,26 @@ namespace SkiStore.Controllers
         private const string BasketCookieName = "basketId";
 
         [HttpGet]
-        public async Task<ActionResult<Basket>> GetBasket()
+        public async Task<ActionResult<BasketDto>> GetBasket()
         {
             var basket = await RetrieveBasket();
 
             if(basket == null) return NotFound();
 
-            return basket;
+            return new BasketDto
+            {
+                BasketId = basket.BasketId,
+                Items = basket.Items.Select(item => new BasketItemDto
+                {
+                    ProductId = item.ProductId,
+                    Name = item.Product.Name,
+                    Price = item.Product.Price,
+                    PictureUrl = item.Product.PictureUrl,
+                    Quantity = item.Quantity,
+                    Brand = item.Product.Brand,
+                    Type = item.Product.Type
+                }).ToList()
+            };
         }
 
         [HttpPost]
@@ -26,7 +40,6 @@ namespace SkiStore.Controllers
         {
             //get basket
             var basket = await RetrieveBasket();
-
             //create basket if null
             basket ??= CreateBasket();
 
