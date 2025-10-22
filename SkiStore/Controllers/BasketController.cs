@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SkiStore.Data;
 using SkiStore.DTOs;
 using SkiStore.Entities;
+using SkiStore.Extensions;
 
 namespace SkiStore.Controllers
 {
@@ -19,24 +20,11 @@ namespace SkiStore.Controllers
 
             if(basket == null) return NotFound();
 
-            return new BasketDto
-            {
-                BasketId = basket.BasketId,
-                Items = basket.Items.Select(item => new BasketItemDto
-                {
-                    ProductId = item.ProductId,
-                    Name = item.Product.Name,
-                    Price = item.Product.Price,
-                    PictureUrl = item.Product.PictureUrl,
-                    Quantity = item.Quantity,
-                    Brand = item.Product.Brand,
-                    Type = item.Product.Type
-                }).ToList()
-            };
+            return basket.ToDto();
         }
 
         [HttpPost]
-        public async Task<ActionResult> AddItemToBasket(int productId, int quantity)
+        public async Task<ActionResult<BasketDto>> AddItemToBasket(int productId, int quantity)
         {
             //get basket
             var basket = await RetrieveBasket();
@@ -53,9 +41,28 @@ namespace SkiStore.Controllers
             //save changes
             var result = await context.SaveChangesAsync() > 0;
 
-            if (result) return CreatedAtAction(nameof(GetBasket), basket);
+            if (result) return CreatedAtAction(nameof(GetBasket), basket.ToDto());
 
             return BadRequest("Problem adding item to basket");
+        }
+
+        [HttpDelete]
+        public async Task<ActionResult> RemoveBasketItem(int productId, int quantity)
+        {
+            // get basket
+            var basket = await RetrieveBasket();
+           
+            // remove the item or reduce its quantity
+            if (basket == null) return BadRequest("Unable to retrieve basket.");
+
+            basket.RemoveItem(productId, quantity);
+            
+            // save changes
+            var result = await context.SaveChangesAsync() > 0;
+
+            if (result) return Ok();
+
+            return BadRequest("Problem updating basket.");
         }
 
         private Basket? CreateBasket()
